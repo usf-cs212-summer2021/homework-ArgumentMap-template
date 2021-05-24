@@ -60,26 +60,57 @@ jobs:
           outcome="${{ needs.build.outputs.outcome }}"
           level="warning"
           color="e3b341"
+          detail="View the \"Run Autograder\" step within the \"Autograding\" job for more information."
 
           if [[ $outcome == "success" ]]; then
             level="warning"
             color="2ea043"
-            summary="${summary} All tests passed!"
+            summary="${summary} All tests passed! ${detail}"
+            echo "::warning::${summary}"
           elif [[ $outcome == "failure" ]]; then
             level="failure"
             color="f85149"
-            summary="${summary} One or more tests failed."
+            summary="${summary} One or more tests failed. ${detail}"
+            echo "::error::${summary}"
           else
-            summary="${summary} One or more issues encountered."
+            summary="${summary} One or more issues encountered. ${detail}"
+            echo "::error::${summary}"
           fi
-
-          summary="${summary} See the \"Autograding\" job and "Run Autograder" step within that job for more information."
 
           echo "::set-output name=title::$title"
           echo "::set-output name=summary::$summary"
           echo "::set-output name=outcome::$outcome"
           echo "::set-output name=level::$level"
           echo "::set-output name=color::$color"
+
+      # - name: Check Status
+      #   id: results
+      #   run: |
+      #     title="${{ needs.build.outputs.points }} Points"
+      #     summary="Points: ${{ needs.build.outputs.points }}."
+      #     outcome="${{ needs.build.outputs.outcome }}"
+      #     level="warning"
+      #     color="e3b341"
+      #
+      #     if [[ $outcome == "success" ]]; then
+      #       level="warning"
+      #       color="2ea043"
+      #       summary="${summary} All tests passed!"
+      #     elif [[ $outcome == "failure" ]]; then
+      #       level="failure"
+      #       color="f85149"
+      #       summary="${summary} One or more tests failed."
+      #     else
+      #       summary="${summary} One or more issues encountered."
+      #     fi
+      #
+      #     summary="${summary} See the \"Autograding\" job and "Run Autograder" step within that job for more information."
+      #
+      #     echo "::set-output name=title::$title"
+      #     echo "::set-output name=summary::$summary"
+      #     echo "::set-output name=outcome::$outcome"
+      #     echo "::set-output name=level::$level"
+      #     echo "::set-output name=color::$color"
 
   # make points badge for readme
   # https://education.github.community/t/autograder-score-on-readme/66289/2
@@ -125,20 +156,20 @@ jobs:
   # https://github.com/usf-cs212-spring2021/action-add-annotation
   # https://octokit.github.io/rest.js/v18#checks-create
 
-  annotate:
-    name: Generate Annotation
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    if: always()
-    needs: status
-
-    steps:
-      - name: Add Annotation
-        uses: usf-cs212-spring2021/action-add-annotation@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: 'Autograding Status'
-          title: '${{ needs.status.outputs.title }}'
-          summary: '${{ needs.status.outputs.summary }}'
-          conclusion: '${{ needs.status.outputs.outcome }}'
-          level: '${{ needs.status.outputs.level }}'
+  # annotate:
+  #   name: Generate Annotation
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 1
+  #   if: always()
+  #   needs: status
+  #
+  #   steps:
+  #     - name: Add Annotation
+  #       uses: usf-cs212-spring2021/action-add-annotation@main
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         name: 'Autograding Status'
+  #         title: '${{ needs.status.outputs.title }}'
+  #         summary: '${{ needs.status.outputs.summary }}'
+  #         conclusion: '${{ needs.status.outputs.outcome }}'
+  #         level: '${{ needs.status.outputs.level }}'
