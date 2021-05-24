@@ -6,7 +6,7 @@ import java.util.Map;
  *
  * @author CS 212 Software Development
  * @author University of San Francisco
- * @version Spring 2021
+ * @version Summer 2021
  */
 public class ArgumentMap {
 	/**
@@ -197,8 +197,8 @@ public class ArgumentMap {
 	public static void main(String[] args) {
 		if (args.length < 1) {
 			// demonstrate with a hard-coded example
-			args = new String[] { 
-					"-a", "ant", "-b", "bee", "-b", "bat", "cat", 
+			args = new String[] {
+					"-a", "ant", "-b", "bee", "-b", "bat", "cat",
 					"-d", "-e", "elk", "-f" };
 
 			// create and output initial map
