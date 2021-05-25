@@ -8,20 +8,31 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.launcher.TagFilter;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 
 /**
  * Tests for the {@link ArgumentMap} class.
@@ -583,12 +594,37 @@ public class ArgumentMapTest {
 	/**
 	 * Imperfect tests to try and determine if the approach may have issues.
 	 */
+	@Tag("approach")
 	@Nested
 	@TestMethodOrder(OrderAnnotation.class)
+	@TestInstance(Lifecycle.PER_CLASS)
 	public class E_ApproachTests {
 		/** Source code loaded as a String object. */
 		private String source;
 
+		/**
+		 * Fails all approach tests if all other tests are not yet passing.
+		 */
+		@BeforeAll
+		public void enable() {
+			var request = LauncherDiscoveryRequestBuilder.request()
+					.selectors(DiscoverySelectors.selectClass(ArgumentMapTest.class))
+					.filters(TagFilter.excludeTags("approach"))
+					.build();
+			
+			var launcher = LauncherFactory.create();
+			var listener = new SummaryGeneratingListener();
+
+			Logger logger = Logger.getLogger("org.junit.platform.launcher");
+			logger.setLevel(Level.SEVERE);
+			
+			launcher.registerTestExecutionListeners(listener);
+			launcher.execute(request);
+
+			Assertions.assertEquals(0, listener.getSummary().getTotalFailureCount(),
+					"Other tests must pass before appoarch tests pass!");
+		}
+		
 		/**
 		 * Sets up the parser object with a single test case.
 		 *
@@ -601,6 +637,8 @@ public class ArgumentMapTest {
 
 			assertTrue(Files.isReadable(path), "Unable to access source code.");
 			this.source = Files.readString(path, StandardCharsets.UTF_8);
+			
+			System.out.println("beforeach");
 		}
 
 		/**
