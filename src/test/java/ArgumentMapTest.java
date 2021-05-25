@@ -276,34 +276,6 @@ public class ArgumentMapTest {
 	@Nested
 	@TestMethodOrder(OrderAnnotation.class)
 	public class C_ParseTests {
-		/** ArgumentParser object being tested */
-		private ArgumentMap parser;
-
-		/** String used to output debug messages when tests fail. */
-		private String debug;
-
-		/**
-		 * Sets up the parser object with a single test case.
-		 */
-		@BeforeEach
-		public void setup() {
-			String[] args = { "", "-a", "42", "-b", "bat", "cat", "-d", "-e", "elk",
-					"-1", "-e", "-f" };
-
-			this.parser = new ArgumentMap();
-			this.parser.parse(args);
-
-			this.debug = "\n" + this.parser.toString() + "\n";
-		}
-
-		/**
-		 * Nullifies the parser object after each test.
-		 */
-		@AfterEach
-		public void teardown() {
-			this.parser = null;
-		}
-
 		/**
 		 * Checks if number of flags is correct for this test case.
 		 */
@@ -463,6 +435,34 @@ public class ArgumentMapTest {
 
 			assertEquals(expected, actual, this.debug);
 		}
+		
+		/** ArgumentParser object being tested */
+		private ArgumentMap parser;
+
+		/** String used to output debug messages when tests fail. */
+		private String debug;
+
+		/**
+		 * Sets up the parser object with a single test case.
+		 */
+		@BeforeEach
+		public void setup() {
+			String[] args = { "", "-a", "42", "-b", "bat", "cat", "-d", "-e", "elk",
+					"-1", "-e", "-f" };
+
+			this.parser = new ArgumentMap();
+			this.parser.parse(args);
+
+			this.debug = "\n" + this.parser.toString() + "\n";
+		}
+
+		/**
+		 * Nullifies the parser object after each test.
+		 */
+		@AfterEach
+		public void teardown() {
+			this.parser = null;
+		}
 	}
 
 	/**
@@ -599,46 +599,6 @@ public class ArgumentMapTest {
 	@TestMethodOrder(OrderAnnotation.class)
 	@TestInstance(Lifecycle.PER_CLASS)
 	public class E_ApproachTests {
-		/** Source code loaded as a String object. */
-		private String source;
-
-		/**
-		 * Fails all approach tests if all other tests are not yet passing.
-		 */
-		@BeforeAll
-		public void enable() {
-			var request = LauncherDiscoveryRequestBuilder.request()
-					.selectors(DiscoverySelectors.selectClass(ArgumentMapTest.class))
-					.filters(TagFilter.excludeTags("approach"))
-					.build();
-
-			var launcher = LauncherFactory.create();
-			var listener = new SummaryGeneratingListener();
-
-			Logger logger = Logger.getLogger("org.junit.platform.launcher");
-			logger.setLevel(Level.SEVERE);
-
-			launcher.registerTestExecutionListeners(listener);
-			launcher.execute(request);
-
-			Assertions.assertEquals(0, listener.getSummary().getTotalFailureCount(),
-					"Other tests must pass before appoarch tests pass!");
-		}
-
-		/**
-		 * Sets up the parser object with a single test case.
-		 *
-		 * @throws IOException if IO issue occurs
-		 */
-		@BeforeEach
-		public void setup() throws IOException {
-			String name = ArgumentMap.class.getSimpleName() + ".java";
-			Path path = Path.of("src", "main", "java", name);
-
-			assertTrue(Files.isReadable(path), "Unable to access source code.");
-			this.source = Files.readString(path, StandardCharsets.UTF_8);
-		}
-
 		/**
 		 * Tests that the java.io.File class does not appear in the implementation
 		 * code.
@@ -679,6 +639,46 @@ public class ArgumentMapTest {
 
 			assertTrue(count <= 1, "Found " + count
 					+ " loops in source code. Only 1 should be necessary.");
+		}
+		
+		/** Source code loaded as a String object. */
+		private String source;
+
+		/**
+		 * Fails all approach tests if all other tests are not yet passing.
+		 */
+		@BeforeAll
+		public void enable() {
+			var request = LauncherDiscoveryRequestBuilder.request()
+					.selectors(DiscoverySelectors.selectClass(ArgumentMapTest.class))
+					.filters(TagFilter.excludeTags("approach"))
+					.build();
+
+			var launcher = LauncherFactory.create();
+			var listener = new SummaryGeneratingListener();
+
+			Logger logger = Logger.getLogger("org.junit.platform.launcher");
+			logger.setLevel(Level.SEVERE);
+
+			launcher.registerTestExecutionListeners(listener);
+			launcher.execute(request);
+
+			Assertions.assertEquals(0, listener.getSummary().getTotalFailureCount(),
+					"Other tests must pass before appoarch tests pass!");
+		}
+
+		/**
+		 * Sets up the parser object with a single test case.
+		 *
+		 * @throws IOException if IO issue occurs
+		 */
+		@BeforeEach
+		public void setup() throws IOException {
+			String name = ArgumentMap.class.getSimpleName() + ".java";
+			Path path = Path.of("src", "main", "java", name);
+
+			assertTrue(Files.isReadable(path), "Unable to access source code.");
+			this.source = Files.readString(path, StandardCharsets.UTF_8);
 		}
 	}
 }
