@@ -611,20 +611,20 @@ public class ArgumentMapTest {
 					.selectors(DiscoverySelectors.selectClass(ArgumentMapTest.class))
 					.filters(TagFilter.excludeTags("approach"))
 					.build();
-			
+
 			var launcher = LauncherFactory.create();
 			var listener = new SummaryGeneratingListener();
 
 			Logger logger = Logger.getLogger("org.junit.platform.launcher");
 			logger.setLevel(Level.SEVERE);
-			
+
 			launcher.registerTestExecutionListeners(listener);
 			launcher.execute(request);
 
 			Assertions.assertEquals(0, listener.getSummary().getTotalFailureCount(),
 					"Other tests must pass before appoarch tests pass!");
 		}
-		
+
 		/**
 		 * Sets up the parser object with a single test case.
 		 *
@@ -637,8 +637,6 @@ public class ArgumentMapTest {
 
 			assertTrue(Files.isReadable(path), "Unable to access source code.");
 			this.source = Files.readString(path, StandardCharsets.UTF_8);
-			
-			System.out.println("beforeach");
 		}
 
 		/**
