@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -23,8 +22,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -597,7 +594,6 @@ public class ArgumentMapTest {
 	@Tag("approach")
 	@Nested
 	@TestMethodOrder(OrderAnnotation.class)
-	@TestInstance(Lifecycle.PER_CLASS)
 	public class E_ApproachTests {
 		/**
 		 * Tests that the java.io.File class does not appear in the implementation
@@ -641,14 +637,13 @@ public class ArgumentMapTest {
 					+ " loops in source code. Only 1 should be necessary.");
 		}
 		
-		/** Source code loaded as a String object. */
-		private String source;
-
 		/**
-		 * Fails all approach tests if all other tests are not yet passing.
+		 * Causes this group of tests to fail if the other non-approach tests are
+		 * not yet passing.
 		 */
-		@BeforeAll
-		public void enable() {
+		@Test
+		@Order(4)
+		public void testOthersPassing() {
 			var request = LauncherDiscoveryRequestBuilder.request()
 					.selectors(DiscoverySelectors.selectClass(ArgumentMapTest.class))
 					.filters(TagFilter.excludeTags("approach"))
@@ -664,8 +659,11 @@ public class ArgumentMapTest {
 			launcher.execute(request);
 
 			Assertions.assertEquals(0, listener.getSummary().getTotalFailureCount(),
-					"Other tests must pass before appoarch tests pass!");
+					"Must pass other tests to earn credit for approach group!");
 		}
+		
+		/** Source code loaded as a String object. */
+		private String source;
 
 		/**
 		 * Sets up the parser object with a single test case.
